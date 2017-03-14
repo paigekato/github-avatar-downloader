@@ -1,5 +1,5 @@
-const request = require('request');
-var https = require('https');
+var request = require('request');
+var fs = require('fs');
 var link = "https://api.github.com/repos/jquery/jquery/contributors";
 var options = {
   url: link,
@@ -16,30 +16,34 @@ console.log('Welcome to the GitHub Avatar Downloader!');
 
 
 function getRepoContributors(repoOwner, repoName, cb) {
-  repoOwner = "jquery";
-  repoName = "jquery";
-
   var requestURL = "https://" + GITHUB_USER + ":" + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + "/" + repoName + "/contributors";
-
   request(options, function(err, response, body) {
     if(err) throw err;
     console.log('Response Status Code: ', response.statusCode);
-
-    let obj = JSON.parse(body);
-    var avatarURL = [];
-    // console.log(obj.avatar_url);
-
-    obj.forEach(function(element) {
-
-      console.log(element.avatar_url)
-    });
-
-
-
+    var obj = JSON.parse(body);
+    cb(null, obj);
   });
-
 }
 
+function downloadImageByURL(url, filePath) {
+  request.get(url)
+    .on("error", function(err) {
+    throw err;
+    })
+  .on("response", function(response) {
+    console.log("Response Status Code: ", response.statusCode);
+  })
+  .pipe(fs.createWriteStream(filePath));
+}
+
+getRepoContributors("jquery", "jquery", function(err, result) {
+  console.log("Errors", err);
+  console.log("Result", result);
+
+   result.forEach(function(element) {
+     var filePath = "./avatars/" + element.login + ".jpg";
+     downloadImageByURL(element.avatar_url, filePath);
+  });
+});
 
 
-getRepoContributors();
