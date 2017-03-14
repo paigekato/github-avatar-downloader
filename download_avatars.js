@@ -1,7 +1,8 @@
 const request = require('request');
 var https = require('https');
+var link = "https://api.github.com/repos/jquery/jquery/contributors";
 var options = {
-  url: 'https://api.github.com/repos/jquery/jquery/contributors',
+  url: link,
   headers: {
     'User-Agent': 'paigekato'
   }
@@ -23,9 +24,20 @@ function getRepoContributors(repoOwner, repoName, cb) {
   request(options, function(err, response, body) {
     if(err) throw err;
     console.log('Response Status Code: ', response.statusCode);
-    console.log("BODY: ", body);
+
+    let obj = JSON.parse(body);
+    var avatarURL = [];
+    // console.log(obj.avatar_url);
+
+    obj.forEach(function(element) {
+
+      console.log(element.avatar_url)
+    });
+
+
+
   });
-  console.log(requestURL);
+
 }
 
 
